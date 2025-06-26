@@ -79,6 +79,40 @@ fig4 = px.pie(sample_totals, values=sample_totals.values, names=sample_totals.in
              title="Proportion of Total Expression by Sample")
 st.plotly_chart(fig4, use_container_width=True)
 
+# ===== TOP EXPRESSED GENES =====
+st.header("🏆 Top 10 Expressed Genes")
+top_genes = df[selected_samples].mean(axis=1).sort_values(ascending=False).head(10)
+
+# Create two columns for layout
+gene_col1, gene_col2 = st.columns([2, 1])
+
+with gene_col1:
+    fig = px.bar(
+        top_genes.reset_index(),
+        x=top_genes.index,
+        y=top_genes.values,
+        labels={'x': 'Gene', 'y': 'Average Expression'},
+        title="Highest Expressed Genes (Avg Across Samples)",
+        color=top_genes.values,
+        color_continuous_scale='Viridis'
+    )
+    fig.update_layout(showlegend=False)
+    st.plotly_chart(fig, use_container_width=True)
+
+with gene_col2:
+    st.subheader("Gene List")
+    st.dataframe(
+        top_genes.reset_index().rename(columns={'index': 'Gene', 0: 'Expression'}),
+        hide_index=True,
+        use_container_width=True
+    )
+    st.download_button(
+        "Download Top Genes",
+        data=top_genes.to_csv(),
+        file_name="top_10_genes.csv",
+        mime="text/csv"
+    )
+
 # PCA visualization
 st.header("Principal Component Analysis")
 if len(selected_samples) >= 2:
